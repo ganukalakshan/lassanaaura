@@ -1,0 +1,13 @@
+:root{--bg:#f3f3f4;--card:#fff;--accent:#c2185b}
+html,body,#react-root{height:100%;}
+body{background:var(--bg);font-family:Inter,system-ui,Segoe UI,Roboto,Arial;margin:0}
+.login-page{display:flex;align-items:center;justify-content:center;height:100%}
+.login-card{width:360px;background:var(--card);padding:28px;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,0.08);text-align:center}
+.logo-wrap{display:flex;justify-content:center;margin-bottom:8px}
+.logo{width:200px;height:200px;object-fit:cover;border-radius:50%;border:10px solid rgba(255,255,255,0.95);box-shadow:0 10px 40px rgba(180,20,90,0.25), inset 0 2px 8px rgba(255,255,255,0.6);display:block;margin:0 auto}
+.logo-wrap::after{content:"";position:absolute;width:240px;height:240px;border-radius:50%;background:radial-gradient(circle at 35% 35%, rgba(255,200,220,0.35), rgba(255,200,220,0.12) 45%, transparent 60%);filter:blur(18px);z-index:-1}
+.login-card h2{margin:6px 0 18px;color:#333}
+.login-form{display:flex;flex-direction:column;gap:10px}
+.login-form input{padding:10px 12px;border-radius:6px;border:1px solid #ddd;font-size:14px}
+.login-form button{background:var(--accent);color:#fff;padding:10px;border:none;border-radius:6px;cursor:pointer}
+.message{margin-top:12px;color:#b00020;font-size:13px}
