@@ -17,7 +17,7 @@
       <h1>Welcome to Lassana Aura</h1>
       <p>Use the link below to sign in to the admin dashboard.</p>
       <div>
-        <a href="/login" class="button">Go to Login</a>
+        <a href="{{ route('login') }}" class="button">Go to Login</a>
       </div>
     </div>
   </body>
