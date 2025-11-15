@@ -1,24 +1,98 @@
-<nav class="sidebar" aria-label="Main sidebar">
-  <div class="brand">
-    <a href="{{ url('/dashboard') }}" style="display:flex;align-items:center;gap:8px;text-decoration:none;color:inherit">
-      <img src="{{ asset('images/logo.jpg') }}" alt="LassanaAura" class="brand-img" style="width:36px;height:36px;object-fit:cover;border-radius:6px;" />
-      <span class="brand-label">LassanaAura</span>
-    </a>
-    <button id="sidebar-toggle" aria-label="Toggle sidebar" title="Toggle sidebar" type="button">◀</button>
-  </div>
-
-  <ul class="menu">
-    <li>
-      <a href="{{ url('/dashboard') }}" class="{{ request()->is('dashboard') ? 'active' : '' }}">
-        <span class="icon" aria-hidden="true">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M3 13h8V3H3v10zM13 21h8V11h-8v10zM13 3v6h8V3h-8zM3 21h8v-8H3v8z" fill="currentColor"/>
-          </svg>
-        </span>
-        <span class="label">Dashboard</span>
-      </a>
-    </li>
-  </ul>
-</nav>
+<aside class="sidebar">
+    <div class="sidebar-header">
+        <div class="sidebar-logo">
+            <div class="sidebar-logo-icon">
+                <i class="fas fa-chart-line"></i>
+            </div>
+            <span>Business MS</span>
+        </div>
+    </div>
+    
+    <nav class="sidebar-nav">
+        <div class="nav-item">
+            <a href="{{ route('dashboard') }}" class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
+                <span class="nav-icon"><i class="fas fa-home"></i></span>
+                <span>Dashboard</span>
+            </a>
+        </div>
+        
+        <div class="nav-item">
+            <a href="{{ route('customers.index') }}" class="nav-link {{ request()->routeIs('customers.*') ? 'active' : '' }}">
+                <span class="nav-icon"><i class="fas fa-users"></i></span>
+                <span>Customers</span>
+            </a>
+        </div>
+        
+        <div class="nav-item">
+            <a href="{{ route('products.index') }}" class="nav-link {{ request()->routeIs('products.*') ? 'active' : '' }}">
+                <span class="nav-icon"><i class="fas fa-box"></i></span>
+                <span>Products</span>
+            </a>
+        </div>
+        
+        <div class="nav-item">
+            <a href="{{ route('invoices.index') }}" class="nav-link {{ request()->routeIs('invoices.*') ? 'active' : '' }}">
+                <span class="nav-icon"><i class="fas fa-file-invoice"></i></span>
+                <span>Invoices</span>
+            </a>
+        </div>
+        
+        <div class="nav-item">
+            <a href="{{ route('sales.quotes.index') }}" class="nav-link {{ request()->routeIs('sales.quotes.*') ? 'active' : '' }}">
+                <span class="nav-icon"><i class="fas fa-file-alt"></i></span>
+                <span>Sales Quotes</span>
+            </a>
+        </div>
+        
+        <div class="nav-item">
+            <a href="{{ route('sales.orders.index') }}" class="nav-link {{ request()->routeIs('sales.orders.*') ? 'active' : '' }}">
+                <span class="nav-icon"><i class="fas fa-shopping-cart"></i></span>
+                <span>Sales Orders</span>
+            </a>
+        </div>
+        
+        <div class="nav-item">
+            <a href="{{ route('suppliers.index') }}" class="nav-link {{ request()->routeIs('suppliers.*') ? 'active' : '' }}">
+                <span class="nav-icon"><i class="fas fa-truck"></i></span>
+                <span>Suppliers</span>
+            </a>
+        </div>
+        
+        <div class="nav-item">
+            <a href="{{ route('purchases.orders.index') }}" class="nav-link {{ request()->routeIs('purchases.orders.*') ? 'active' : '' }}">
+                <span class="nav-icon"><i class="fas fa-receipt"></i></span>
+                <span>Purchase Orders</span>
+            </a>
+        </div>
+        
+        <div class="nav-item">
+            <a href="{{ route('expenses.index') }}" class="nav-link {{ request()->routeIs('expenses.*') ? 'active' : '' }}">
+                <span class="nav-icon"><i class="fas fa-money-bill-wave"></i></span>
+                <span>Expenses</span>
+            </a>
+        </div>
+        
+        <div class="nav-item">
+            <a href="{{ route('payments.index') }}" class="nav-link {{ request()->routeIs('payments.*') ? 'active' : '' }}">
+                <span class="nav-icon"><i class="fas fa-credit-card"></i></span>
+                <span>Payments</span>
+            </a>
+        </div>
+        
+        <div class="nav-item">
+            <a href="{{ route('inventory.index') }}" class="nav-link {{ request()->routeIs('inventory.*') ? 'active' : '' }}">
+                <span class="nav-icon"><i class="fas fa-warehouse"></i></span>
+                <span>Inventory</span>
+            </a>
+        </div>
+        
+        <div class="nav-item">
+            <a href="{{ route('reports.index') }}" class="nav-link {{ request()->routeIs('reports.*') ? 'active' : '' }}">
+                <span class="nav-icon"><i class="fas fa-chart-bar"></i></span>
+                <span>Reports</span>
+            </a>
+        </div>
+    </nav>
+</aside>
 
 

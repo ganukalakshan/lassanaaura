@@ -6,7 +6,11 @@ export default defineConfig({
     plugins: [
         laravel({
             // Use the JSX entry so Vite parses JSX correctly
-            input: ['resources/css/app.css', 'resources/js/app.jsx'],
+            input: [
+                'resources/css/theme.css',
+                'resources/css/app.css', 
+                'resources/js/app.jsx'
+            ],
             refresh: true,
         }),
         tailwindcss(),
