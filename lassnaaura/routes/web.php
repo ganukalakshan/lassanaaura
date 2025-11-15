@@ -6,9 +6,10 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+// Name the login route so middleware redirects (route('login')) work correctly
 Route::get('/login', function () {
     return view('login');
-});
+})->name('login');
 
 use App\Http\Controllers\Auth\LoginController;
 
