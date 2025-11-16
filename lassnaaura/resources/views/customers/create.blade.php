@@ -191,14 +191,7 @@
                         
                         <div class="form-group col-md-6">
                             <label for="country" class="form-label required">Country</label>
-                            <select name="country" id="country" class="form-control @error('country') is-invalid @enderror" required>
-                                <option value="">Select Country</option>
-                                <option value="US" {{ old('country') === 'US' ? 'selected' : '' }}>United States</option>
-                                <option value="UK" {{ old('country') === 'UK' ? 'selected' : '' }}>United Kingdom</option>
-                                <option value="CA" {{ old('country') === 'CA' ? 'selected' : '' }}>Canada</option>
-                                <option value="AU" {{ old('country') === 'AU' ? 'selected' : '' }}>Australia</option>
-                                <option value="IN" {{ old('country') === 'IN' ? 'selected' : '' }}>India</option>
-                            </select>
+                            <input type="text" name="country" id="country" class="form-control @error('country') is-invalid @enderror" value="{{ old('country') }}" placeholder="Country" required>
                             @error('country')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -218,15 +211,15 @@
                 <div class="card-body">
                     <div class="form-row">
                         <div class="form-group col-md-6">
-                            <label for="payment_terms" class="form-label">Payment Terms (Days)</label>
-                            <select name="payment_terms" id="payment_terms" class="form-control @error('payment_terms') is-invalid @enderror">
-                                <option value="0" {{ old('payment_terms', '0') === '0' ? 'selected' : '' }}>Due on Receipt</option>
-                                <option value="15" {{ old('payment_terms') === '15' ? 'selected' : '' }}>Net 15</option>
-                                <option value="30" {{ old('payment_terms') === '30' ? 'selected' : '' }}>Net 30</option>
-                                <option value="45" {{ old('payment_terms') === '45' ? 'selected' : '' }}>Net 45</option>
-                                <option value="60" {{ old('payment_terms') === '60' ? 'selected' : '' }}>Net 60</option>
+                            <label for="payment_terms_days" class="form-label">Payment Terms (Days)</label>
+                            <select name="payment_terms_days" id="payment_terms_days" class="form-control @error('payment_terms_days') is-invalid @enderror">
+                                <option value="0" {{ old('payment_terms_days', '0') === '0' ? 'selected' : '' }}>Due on Receipt</option>
+                                <option value="15" {{ old('payment_terms_days') === '15' ? 'selected' : '' }}>Net 15</option>
+                                <option value="30" {{ old('payment_terms_days') === '30' ? 'selected' : '' }}>Net 30</option>
+                                <option value="45" {{ old('payment_terms_days') === '45' ? 'selected' : '' }}>Net 45</option>
+                                <option value="60" {{ old('payment_terms_days') === '60' ? 'selected' : '' }}>Net 60</option>
                             </select>
-                            @error('payment_terms')
+                            @error('payment_terms_days')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>

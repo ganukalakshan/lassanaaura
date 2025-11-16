@@ -35,38 +35,38 @@
     <!-- Statistics Cards -->
     <div class="stats-grid">
         <div class="stat-card">
-            <div class="stat-card-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-                <i class="fas fa-users"></i>
+            <div class="stat-card-icon stat-purple">
+                <i class="fas fa-users" aria-hidden="true"></i>
             </div>
             <div class="stat-card-content">
                 <h3 class="stat-card-value">{{ $totalCustomers ?? 0 }}</h3>
                 <p class="stat-card-label">Total Customers</p>
             </div>
         </div>
-        
+
         <div class="stat-card">
-            <div class="stat-card-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
-                <i class="fas fa-user-check"></i>
+            <div class="stat-card-icon stat-pink">
+                <i class="fas fa-user-check" aria-hidden="true"></i>
             </div>
             <div class="stat-card-content">
                 <h3 class="stat-card-value">{{ $activeCustomers ?? 0 }}</h3>
                 <p class="stat-card-label">Active Customers</p>
             </div>
         </div>
-        
+
         <div class="stat-card">
-            <div class="stat-card-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
-                <i class="fas fa-dollar-sign"></i>
+            <div class="stat-card-icon stat-blue">
+                <i class="fas fa-dollar-sign" aria-hidden="true"></i>
             </div>
             <div class="stat-card-content">
                 <h3 class="stat-card-value">${{ number_format($totalRevenue ?? 0, 2) }}</h3>
                 <p class="stat-card-label">Total Revenue</p>
             </div>
         </div>
-        
+
         <div class="stat-card">
-            <div class="stat-card-icon" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
-                <i class="fas fa-receipt"></i>
+            <div class="stat-card-icon stat-green">
+                <i class="fas fa-receipt" aria-hidden="true"></i>
             </div>
             <div class="stat-card-content">
                 <h3 class="stat-card-value">{{ $totalOrders ?? 0 }}</h3>
@@ -249,41 +249,58 @@
 
 @push('styles')
 <style>
-    .customer-info {
-        display: flex;
-        align-items: center;
-        gap: 12px;
+    /* Container and header */
+    .page-container { padding: 16px; }
+    .page-header { margin-bottom: 12px; }
+    .page-header-content { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+    .page-header-left h2 { margin: 0; font-size: 1.05rem; }
+    .page-header-subtitle { margin: 0; color: #6c757d; font-size: 0.9rem; }
+    .page-header-actions .btn { margin-left: 6px; padding: 8px 12px; }
+
+    /* Stats grid compact */
+    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 12px; }
+    .stat-card { display: flex; gap: 10px; align-items: center; padding: 12px; border-radius: 10px; background: #fff; border: 1px solid #eef0f3; }
+    .stat-card-icon { width: 44px; height: 44px; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 18px; }
+    .stat-card-value { margin: 0; font-size: 1.05rem; }
+    .stat-card-label { margin: 0; color: #757575; font-size: 0.85rem; }
+
+    /* Filters and search - inline and compact */
+    .filter-section { display: flex; gap: 10px; align-items: center; margin-bottom: 12px; flex-wrap: wrap; }
+    .search-box { display: flex; align-items: center; gap: 8px; padding: 6px 10px; border-radius: 8px; background: #fff; border: 1px solid #e9ecef; min-width: 260px; }
+    .search-box i { color: #9aa0a6; }
+    .search-box input { border: none; outline: none; padding: 6px; font-size: 0.95rem; width: 100%; }
+    .filter-controls { display: flex; gap: 8px; align-items: center; }
+    .filter-controls .form-control { padding: 6px 8px; height: auto; min-width: 140px; }
+
+    /* Card and table spacing tightened */
+    .card { margin-bottom: 12px; border-radius: 10px; overflow: hidden; border: 1px solid #eef0f3; background: #fff; }
+    .card-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; background: transparent; }
+    .card-title { margin: 0; font-size: 1rem; }
+    .card-body { padding: 8px 12px; }
+    .table-responsive { margin: 0; }
+    .table th, .table td { padding: 8px 10px; vertical-align: middle; }
+
+    .customer-info { display: flex; align-items: center; gap: 8px; }
+    .customer-avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; }
+
+    .btn-group { display: flex; gap: 6px; }
+
+    .empty-state { padding: 1.8rem 0; }
+
+    th { cursor: pointer; user-select: none; }
+    th:hover { background-color: rgba(0,0,0,0.02); }
+
+    .badge { padding: 6px 8px; border-radius: 999px; font-size: 0.78rem; }
+
+    /* Responsive tweaks */
+    @media (max-width: 900px) {
+        .stats-grid { grid-template-columns: repeat(2, 1fr); }
+        .filter-controls { width: 100%; justify-content: space-between; }
     }
-    
-    .customer-avatar {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: bold;
-        font-size: 14px;
-    }
-    
-    .btn-group {
-        display: flex;
-        gap: 4px;
-    }
-    
-    .empty-state {
-        padding: 3rem 0;
-    }
-    
-    th {
-        cursor: pointer;
-        user-select: none;
-    }
-    
-    th:hover {
-        background-color: rgba(0,0,0,0.02);
+    @media (max-width: 576px) {
+        .stats-grid { grid-template-columns: 1fr; }
+        .search-box { min-width: 100%; }
+        .filter-controls { width: 100%; gap: 6px; }
     }
 </style>
 @endpush

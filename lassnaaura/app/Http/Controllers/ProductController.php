@@ -59,7 +59,8 @@ class ProductController extends Controller
         
         $product = Product::create($validated);
         
-        return redirect()->route('products.show', $product)
+        // Redirect to products index and highlight the newly created product card/button
+        return redirect()->route('products.index', ['highlight' => $product->id])
             ->with('success', 'Product created successfully!');
     }
 

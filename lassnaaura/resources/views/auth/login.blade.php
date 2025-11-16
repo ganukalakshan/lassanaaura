@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Login - Business Management System</title>
+    <title>Login - LassanaAura</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -164,7 +164,7 @@
             <div class="login-logo">
                 <i class="fas fa-chart-line"></i>
             </div>
-            <h1>Business MS</h1>
+            <h1>LassanaAura</h1>
             <p>Sign in to access your dashboard</p>
         </div>
         

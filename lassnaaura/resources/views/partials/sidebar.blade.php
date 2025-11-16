@@ -21,9 +21,14 @@
         <div class="nav-section-title">Sales</div>
         
         <div class="nav-item">
-            <a href="{{ route('customers.index') }}" class="nav-link {{ request()->routeIs('customers.*') ? 'active' : '' }}">
-                <span class="nav-icon"><i class="fas fa-users"></i></span>
-                <span>Customers</span>
+            <a href="{{ route('customers.index') }}" class="nav-link nav-customer {{ request()->routeIs('customers.*') ? 'active' : '' }}" aria-label="Customers">
+                <span class="nav-icon">
+                    <i class="fas fa-users" aria-hidden="true"></i>
+                </span>
+                <span>
+                    Customers
+                    <small class="nav-note">Manage contacts</small>
+                </span>
             </a>
         </div>
         
@@ -73,11 +78,18 @@
         
         <div class="nav-section-title">Inventory</div>
         
-        <div class="nav-item">
+        <div class="nav-item nav-product-group">
             <a href="{{ route('products.index') }}" class="nav-link {{ request()->routeIs('products.*') ? 'active' : '' }}">
                 <span class="nav-icon"><i class="fas fa-box"></i></span>
-                <span>Products</span>
+                <span>
+                    Products
+                    <small class="nav-note">Catalog & Inventory</small>
+                </span>
             </a>
+            <div class="nav-product-sub">
+                <a href="{{ route('products.index') }}" class="sub-link {{ request()->routeIs('products.index') ? 'active' : '' }}">View Products</a>
+                <a href="{{ route('products.create') }}" class="sub-link {{ request()->routeIs('products.create') ? 'active' : '' }}">Add Product</a>
+            </div>
         </div>
         
         <div class="nav-item">
@@ -127,5 +139,17 @@
         </div>
     </nav>
 </aside>
+
+@push('styles')
+<style>
+    .nav-product-group { display:block; padding-bottom:6px; }
+    .nav-product-group .nav-link { display:flex; align-items:center; gap:8px; justify-content:space-between; }
+    .nav-product-group .nav-note { display:block; font-size:0.72rem; color:#98a0a6; }
+    .nav-actions .btn { padding:4px 8px; border-radius:6px; }
+    .nav-product-sub { display:flex; flex-direction:column; gap:4px; padding:6px 16px; }
+    .nav-product-sub .sub-link { color:#556; font-size:0.92rem; text-decoration:none; padding:6px 8px; border-radius:6px; }
+    .nav-product-sub .sub-link.active, .nav-product-sub .sub-link:hover { background:#f2f7f2; color:#2d8a3a; }
+</style>
+@endpush
 
 

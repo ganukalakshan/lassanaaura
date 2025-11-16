@@ -79,7 +79,7 @@
     <div class="filter-section">
         <div class="search-box">
             <i class="fas fa-search"></i>
-            <input type="text" id="productSearch" placeholder="Search products by name, SKU, or description..." onkeyup="filterProducts()">
+            <input type="text" id="productSearch" class="search-input" placeholder="Search products by name, SKU, or description..." onkeyup="filterProducts()">
         </div>
         
         <div class="filter-controls">
@@ -103,7 +103,7 @@
                 <option value="out-of-stock">Out of Stock</option>
             </select>
             
-            <button class="btn btn-secondary" onclick="resetFilters()">
+            <button class="btn btn-reset" onclick="resetFilters()">
                 <i class="fas fa-redo"></i>
                 Reset
             </button>
@@ -112,10 +112,10 @@
 
     <!-- Products Grid/Table Toggle -->
     <div class="view-toggle mb-3">
-        <button class="btn btn-sm btn-secondary active" onclick="switchView('table')">
+        <button class="btn btn-sm btn-secondary view-btn active" onclick="switchView('table')">
             <i class="fas fa-list"></i> Table View
         </button>
-        <button class="btn btn-sm btn-secondary" onclick="switchView('grid')">
+        <button class="btn btn-sm btn-secondary view-btn" onclick="switchView('grid')">
             <i class="fas fa-th"></i> Grid View
         </button>
     </div>
@@ -248,6 +248,12 @@
                     <div class="product-card-category">{{ $product->category->name ?? 'Uncategorized' }}</div>
                     <h4 class="product-card-title">{{ $product->name }}</h4>
                     <p class="product-card-sku">SKU: {{ $product->sku }}</p>
+                    <div class="product-card-meta">
+                        @if(!empty($product->unit))
+                        <span class="variant-badge">{{ $product->unit }}</span>
+                        @endif
+                        <span class="price-badge">৳ {{ number_format($product->price, 0) }}</span>
+                    </div>
                     <div class="product-card-footer">
                         <div class="product-card-price">${{ number_format($product->price, 2) }}</div>
                         <div class="product-card-stock">
@@ -255,11 +261,14 @@
                         </div>
                     </div>
                     <div class="product-card-actions">
-                        <a href="{{ route('products.show', $product->id) }}" class="btn btn-sm btn-info">
-                            <i class="fas fa-eye"></i> View
+                        <a href="{{ route('products.show', $product->id) }}?highlight={{ $product->id }}" class="btn btn-sm btn-info {{ request('highlight') == $product->id ? 'btn-highlight' : '' }}">
+                            <i class="fas fa-eye"></i> View Product
                         </a>
-                        <a href="{{ route('products.edit', $product->id) }}" class="btn btn-sm btn-warning">
-                            <i class="fas fa-edit"></i> Edit
+                        <a href="{{ route('products.edit', $product->id) }}" class="btn btn-sm btn-outline-warning">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        <a href="javascript:void(0)" class="btn btn-sm btn-add-cart">
+                            ADD TO CART
                         </a>
                     </div>
                 </div>
@@ -276,137 +285,84 @@
 
 @push('styles')
 <style>
-    .product-image {
-        width: 50px;
-        height: 50px;
-        border-radius: 0.375rem;
-        overflow: hidden;
-    }
-    
-    .product-image img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
-    
-    .product-image-placeholder {
-        width: 50px;
-        height: 50px;
-        background: #f8f9fa;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: #6c757d;
-        border-radius: 0.375rem;
-    }
-    
-    .products-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-        gap: 1.5rem;
-    }
-    
-    .product-card {
-        background: white;
-        border-radius: 0.5rem;
-        overflow: hidden;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        transition: transform 0.2s, box-shadow 0.2s;
-    }
-    
-    .product-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 4px 16px rgba(0,0,0,0.15);
-    }
-    
-    .product-card-image {
-        position: relative;
-        height: 200px;
-        overflow: hidden;
-    }
-    
-    .product-card-image img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
-    
-    .product-image-placeholder-large {
-        width: 100%;
-        height: 100%;
-        background: #f8f9fa;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 3rem;
-        color: #dee2e6;
-    }
-    
-    .product-card-badges {
-        position: absolute;
-        top: 0.75rem;
-        right: 0.75rem;
-    }
-    
-    .product-card-body {
-        padding: 1rem;
-    }
-    
-    .product-card-category {
-        font-size: 0.75rem;
-        color: #6c757d;
-        text-transform: uppercase;
-        margin-bottom: 0.5rem;
-    }
-    
-    .product-card-title {
-        font-size: 1.125rem;
-        font-weight: 600;
-        margin: 0 0 0.5rem 0;
-    }
-    
-    .product-card-sku {
-        font-size: 0.875rem;
-        color: #6c757d;
-        margin-bottom: 1rem;
-    }
-    
-    .product-card-footer {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 1rem;
-        padding-bottom: 1rem;
-        border-bottom: 1px solid #e9ecef;
-    }
-    
-    .product-card-price {
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: #28a745;
-    }
-    
-    .product-card-stock {
-        font-size: 0.875rem;
-    }
-    
-    .product-card-actions {
-        display: flex;
-        gap: 0.5rem;
-    }
-    
-    .product-card-actions .btn {
-        flex: 1;
-    }
+    /* Compact product grid & cards for neat layout */
+    .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 0.9rem; }
+
+    .product-card { background: #fff; border-radius: 0.5rem; overflow: hidden; box-shadow: 0 1px 6px rgba(0,0,0,0.06); transition: transform 0.14s, box-shadow 0.14s; text-align:center; }
+    .product-card:hover { transform: translateY(-2px); box-shadow: 0 6px 14px rgba(0,0,0,0.08); }
+
+    .product-card-image { display:flex; align-items:center; justify-content:center; height:150px; background:#fff; }
+    .product-card-image img { width:72%; height:120px; object-fit:contain; filter: drop-shadow(0 6px 10px rgba(0,0,0,0.06)); }
+    .product-image-placeholder-large { width:100%; height:100%; background:#fbfbfb; display:flex; align-items:center; justify-content:center; color:#e6e6e6; font-size:2.25rem; }
+
+    .product-card-body { padding:0.65rem 0.75rem; }
+    .product-card-category { font-size:0.72rem; color:#7a7f84; text-transform:uppercase; margin-bottom:4px; }
+    .product-card-title { font-size:0.98rem; font-weight:600; margin:0 0 4px 0; }
+    .product-card-sku { font-size:0.78rem; color:#8b9196; margin-bottom:6px; }
+
+    .product-card-meta { display:flex; justify-content:center; gap:6px; align-items:center; margin-bottom:6px; }
+    .variant-badge { background:#f1fbf1; color:#2f8a37; padding:4px 8px; border-radius:12px; font-size:0.8rem; }
+    .price-badge { background:#f6fbf6; color:#2f8a37; padding:5px 10px; border-radius:16px; font-weight:700; font-size:0.9rem; }
+
+    .product-card-footer { display:flex; justify-content:space-between; align-items:center; padding-top:6px; padding-bottom:6px; border-top:1px solid #f1f2f3; margin-top:8px; }
+    .product-card-price { color:#28a745; font-weight:700; }
+    .product-card-stock { font-size:0.82rem; }
+
+    .product-card-actions { display:flex; gap:0.45rem; margin-top:8px; }
+    .product-card-actions .btn { padding:6px 8px; font-size:0.82rem; border-radius:14px; }
+    .btn-add-cart { background:#6dbf3a; color:#fff; font-weight:700; padding:6px 10px; border-radius:18px; }
+    .btn-add-cart:hover { background:#59a82f; }
+    .btn-sm.btn-info { background:#2b9b3e; border-color:#2b9b3e; }
+    .btn-highlight { box-shadow:0 0 0 3px rgba(102,187,106,0.14); border-color:#28a745; }
+
+    /* Compact table spacing */
+    .table th, .table td { padding:6px 8px; vertical-align:middle; }
+
+    /* Header, stats and filters compact */
+    .page-header { margin-bottom:10px; }
+    .page-header-content { display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; }
+    .stats-grid { gap:10px; margin-bottom:10px; }
+    .filter-section { display:flex; gap:8px; align-items:center; margin-bottom:10px; flex-wrap:wrap; }
+    .search-box { min-width:220px; padding:6px 10px; }
+    .filter-controls .form-control { min-width:120px; padding:6px 8px; }
+
+    /* New styling to match provided ecommerce layout */
+    .product-card-image { display:flex; align-items:center; justify-content:center; background: #fff; }
+    .product-card-image img { width: 70%; height: 140px; object-fit: contain; filter: drop-shadow(0 6px 10px rgba(0,0,0,0.08)); }
+    .product-card { text-align: center; padding-bottom: 12px; }
+    .product-card-meta { display:flex; justify-content:center; gap:8px; align-items:center; margin-bottom:8px; }
+    .variant-badge { background:#e6f4ea; color:#2d8a3a; padding:4px 8px; border-radius:14px; font-size:0.82rem; }
+    .price-badge { background:#e9f7ef; color:#1f8a37; padding:6px 10px; border-radius:18px; font-weight:700; font-size:0.95rem; }
+    .product-card-price { display:none; }
+    .btn-add-cart { background:#6dbf3a; color:white; border-radius:20px; padding:8px 12px; font-weight:700; }
+    .btn-add-cart:hover { background:#5aa92f; }
+    .btn-highlight { box-shadow: 0 0 0 3px rgba(102, 187, 106, 0.18); border-color:#28a745; }
+    .btn-sm.btn-info { background:#2b9b3e; border-color:#2b9b3e; }
+    .btn-sm.btn-info:hover { background:#238032; }
     
     .view-toggle {
         display: flex;
         gap: 0.5rem;
     }
     
-    .view-toggle .btn.active {
-        background: #667eea;
-        color: white;
+    /* Search & filter controls styling */
+    .search-box { display:flex; align-items:center; gap:8px; background:#fff; border:1px solid #e9ecef; padding:8px 10px; border-radius:10px; min-width:220px; }
+    .search-box i { color:#9aa0a6; font-size:16px; }
+    .search-box .search-input { border:0; outline:none; padding:6px 0; width:320px; font-size:0.95rem; }
+    .filter-controls { display:flex; gap:8px; align-items:center; }
+    .filter-controls .form-control { min-width:150px; padding:8px 10px; border-radius:10px; border:1px solid #e9ecef; background:#fff; }
+    .btn-reset { background: #fff; border: 1.5px solid rgba(255,99,120,0.25); color:#ff6b81; padding:8px 12px; border-radius:10px; display:flex; align-items:center; gap:6px; }
+    .btn-reset i { color:#ff6b81; }
+
+    /* View toggle */
+    .view-toggle .view-btn { border-radius:10px; padding:6px 10px; border:1px solid #e6e6e6; background:#fff; color:#556; }
+    .view-toggle .view-btn.active { background: linear-gradient(90deg,#ff7a9a,#ffd1d8); color:#6b0b2b; border-color:transparent; }
+    .view-toggle .view-btn i { margin-right:6px; }
+
+    @media (max-width:900px) {
+        .search-box .search-input { width:160px; }
+        .filter-controls { width:100%; gap:6px; }
+        .filter-controls .form-control { min-width:120px; }
     }
 </style>
 @endpush

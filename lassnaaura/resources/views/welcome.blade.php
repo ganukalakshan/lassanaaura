@@ -192,8 +192,8 @@
             <div class="logo-icon">
                 <i class="fas fa-chart-line"></i>
             </div>
-            <h1>Business Management System</h1>
-            <p>Complete ERP solution for your business needs</p>
+            <h1>LassanaAura ERP</h1>
+           
         </div>
         
         <div class="welcome-body">
