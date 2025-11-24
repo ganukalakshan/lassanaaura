@@ -59,7 +59,7 @@ class CustomerController extends Controller
             'mobile' => 'nullable|string|max:50',
             'tax_id' => 'nullable|string|max:100',
             'credit_limit' => 'nullable|numeric|min:0',
-            'payment_terms_days' => 'required|integer|min:0',
+            'payment_terms_days' => 'nullable|integer|min:0',
             'assigned_user_id' => 'nullable|exists:users,id',
             'lead_source' => 'nullable|string|max:100',
             'notes' => 'nullable|string',
@@ -67,7 +67,12 @@ class CustomerController extends Controller
         
         // Generate customer code
         $validated['customer_code'] = 'CUS-' . str_pad(Customer::max('id') + 1, 6, '0', STR_PAD_LEFT);
-        
+
+        // Ensure payment terms days has a sensible default when not provided
+        if (!array_key_exists('payment_terms_days', $validated) || is_null($validated['payment_terms_days'])) {
+            $validated['payment_terms_days'] = 30;
+        }
+
         $customer = Customer::create($validated);
         
         return redirect()->route('customers.show', $customer)
@@ -116,13 +121,18 @@ class CustomerController extends Controller
             'mobile' => 'nullable|string|max:50',
             'tax_id' => 'nullable|string|max:100',
             'credit_limit' => 'nullable|numeric|min:0',
-            'payment_terms_days' => 'required|integer|min:0',
+            'payment_terms_days' => 'nullable|integer|min:0',
             'assigned_user_id' => 'nullable|exists:users,id',
             'lead_source' => 'nullable|string|max:100',
             'notes' => 'nullable|string',
             'is_active' => 'boolean',
         ]);
-        
+
+        // If payment_terms_days was submitted but empty, ensure DB default compliance
+        if (array_key_exists('payment_terms_days', $validated) && is_null($validated['payment_terms_days'])) {
+            $validated['payment_terms_days'] = 30;
+        }
+
         $customer->update($validated);
         
         return redirect()->route('customers.show', $customer)

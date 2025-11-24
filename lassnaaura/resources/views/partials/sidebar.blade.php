@@ -2,7 +2,7 @@
     <div class="sidebar-header">
         <div class="sidebar-logo">
             <div class="sidebar-logo-icon">
-                <i class="fas fa-chart-line"></i>
+                <i class="fas fa-gem"></i>
             </div>
             <span>LassanaAura ERP</span>
         </div>
@@ -86,10 +86,6 @@
                     <small class="nav-note">Catalog & Inventory</small>
                 </span>
             </a>
-            <div class="nav-product-sub">
-                <a href="{{ route('products.index') }}" class="sub-link {{ request()->routeIs('products.index') ? 'active' : '' }}">View Products</a>
-                <a href="{{ route('products.create') }}" class="sub-link {{ request()->routeIs('products.create') ? 'active' : '' }}">Add Product</a>
-            </div>
         </div>
         
         <div class="nav-item">
@@ -142,13 +138,73 @@
 
 @push('styles')
 <style>
-    .nav-product-group { display:block; padding-bottom:6px; }
-    .nav-product-group .nav-link { display:flex; align-items:center; gap:8px; justify-content:space-between; }
-    .nav-product-group .nav-note { display:block; font-size:0.72rem; color:#98a0a6; }
-    .nav-actions .btn { padding:4px 8px; border-radius:6px; }
-    .nav-product-sub { display:flex; flex-direction:column; gap:4px; padding:6px 16px; }
-    .nav-product-sub .sub-link { color:#556; font-size:0.92rem; text-decoration:none; padding:6px 8px; border-radius:6px; }
-    .nav-product-sub .sub-link.active, .nav-product-sub .sub-link:hover { background:#f2f7f2; color:#2d8a3a; }
+    .nav-product-group { 
+        display: block; 
+        padding-bottom: 8px; 
+    }
+    
+    .nav-product-group .nav-link { 
+        display: flex; 
+        align-items: center; 
+        gap: 1rem; 
+        justify-content: space-between; 
+    }
+    
+    .nav-product-sub { 
+        display: flex; 
+        flex-direction: column; 
+        gap: 6px; 
+        padding: 10px 1rem 10px 3.5rem; 
+        margin-top: 6px;
+        background: rgba(255, 113, 154, 0.05);
+        border-radius: 12px;
+        border-left: 3px solid var(--primary-pink-light);
+    }
+    
+    .nav-product-sub .sub-link { 
+        color: var(--text-primary); 
+        font-size: 0.88rem; 
+        text-decoration: none; 
+        padding: 0.65rem 1rem; 
+        border-radius: 10px;
+        transition: all 0.3s ease;
+        position: relative;
+        padding-left: 2rem;
+        font-weight: 500;
+    }
+    
+    .nav-product-sub .sub-link::before {
+        content: '•';
+        position: absolute;
+        left: 0.8rem;
+        color: var(--primary-pink);
+        transition: all 0.3s ease;
+        font-size: 1.2rem;
+    }
+    
+    .nav-product-sub .sub-link:hover {
+        background: linear-gradient(135deg, rgba(255, 113, 154, 0.15) 0%, rgba(255, 113, 154, 0.08) 100%);
+        color: var(--primary-pink-darker);
+        transform: translateX(3px);
+        box-shadow: 0 2px 8px rgba(255, 113, 154, 0.15);
+    }
+    
+    .nav-product-sub .sub-link:hover::before {
+        color: var(--primary-pink-darker);
+        transform: scale(1.2);
+    }
+    
+    .nav-product-sub .sub-link.active { 
+        background: linear-gradient(135deg, var(--primary-pink) 0%, var(--primary-pink-darker) 100%);
+        color: white;
+        box-shadow: 0 3px 12px rgba(255, 113, 154, 0.3);
+        font-weight: 600;
+    }
+    
+    .nav-product-sub .sub-link.active::before {
+        color: white;
+        content: '→';
+    }
 </style>
 @endpush
 
