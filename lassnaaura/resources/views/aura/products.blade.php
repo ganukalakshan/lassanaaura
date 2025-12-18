@@ -86,6 +86,67 @@
         gap: 15px;
     }
     
+    /* Image Upload Styles */
+    .image-upload-container {
+        position: relative;
+        cursor: pointer;
+    }
+    
+    .image-input {
+        position: absolute;
+        opacity: 0;
+        width: 100%;
+        height: 100%;
+        cursor: pointer;
+        z-index: 2;
+    }
+    
+    .image-preview {
+        width: 100%;
+        height: 180px;
+        border: 2px dashed #cbd5e1;
+        border-radius: 12px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        background: #f8fafc;
+        transition: all 0.3s ease;
+        overflow: hidden;
+    }
+    
+    .image-preview:hover {
+        border-color: #667eea;
+        background: #f1f5f9;
+    }
+    
+    .image-preview i {
+        font-size: 48px;
+        color: #94a3b8;
+    }
+    
+    .image-preview span {
+        font-size: 13px;
+        color: #64748b;
+    }
+    
+    .image-preview img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .image-preview.has-image {
+        border-style: solid;
+        border-color: #667eea;
+    }
+    
+    .image-preview.has-image i,
+    .image-preview.has-image span {
+        display: none;
+    }
+    
     .btn-primary {
         width: 100%;
         padding: 16px;
@@ -163,8 +224,33 @@
     
     .product-table thead th:first-child {
         border-radius: 10px 0 0 10px;
+    }    
+    .product-image-cell {
+        width: 50px;
+        height: 50px;
+        border-radius: 8px;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
     
+    .product-image-cell img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .no-image {
+        width: 100%;
+        height: 100%;
+        background: #e2e8f0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #94a3b8;
+        font-size: 24px;
+    }    
     .product-table thead th:last-child {
         border-radius: 0 10px 10px 0;
     }
@@ -272,10 +358,21 @@
             <p>Fill in the details below</p>
         </div>
         
-        <form action="{{ route('aura.products.store') }}" method="POST" id="productForm">
+        <form action="{{ route('aura.products.store') }}" method="POST" id="productForm" enctype="multipart/form-data">
             @csrf
             <input type="hidden" name="_method" value="POST" id="formMethod">
             <input type="hidden" name="product_id" id="productId">
+            
+            <div class="form-group">
+                <label class="form-label">Product Image</label>
+                <div class="image-upload-container">
+                    <input type="file" name="image" id="productImage" class="image-input" accept="image/*" onchange="previewImage(event)">
+                    <div class="image-preview" id="imagePreview">
+                        <i class="ri-image-add-line"></i>
+                        <span>Click to upload image</span>
+                    </div>
+                </div>
+            </div>
             
             <div class="form-group">
                 <label class="form-label">Product Name</label>
@@ -327,6 +424,7 @@
         <table class="product-table">
             <thead>
                 <tr>
+                    <th>Image</th>
                     <th>Product Name</th>
                     <th>Cost</th>
                     <th>Price</th>
@@ -338,9 +436,18 @@
             <tbody>
                 @foreach($products as $product)
                 <tr>
+                    <td>
+                        <div class="product-image-cell">
+                            @if($product->image_url)
+                                <img src="{{ asset($product->image_url) }}" alt="{{ $product->name }}">
+                            @else
+                                <div class="no-image"><i class="ri-image-line"></i></div>
+                            @endif
+                        </div>
+                    </td>
                     <td>{{ $product->name }}</td>
-                    <td>${{ number_format($product->cost_price, 2) }}</td>
-                    <td class="price-cell">${{ number_format($product->selling_price, 2) }}</td>
+                    <td>Rs {{ number_format($product->cost_price, 2) }}</td>
+                    <td class="price-cell">Rs {{ number_format($product->selling_price, 2) }}</td>
                     <td>
                         @if($product->discount > 0)
                             <span class="discount-badge">{{ $product->discount }}% OFF</span>
@@ -350,14 +457,14 @@
                     </td>
                     <td>
                         <div class="quantity-cell">
-                            <span style="font-weight: 600; min-width: 30px;">{{ $product->stock->sum('quantity_on_hand') ?? 0 }}</span>
+                            <span style="font-weight: 600; min-width: 30px;">{{ $product->stocks->sum('quantity_on_hand') ?? 0 }}</span>
                             <div class="quantity-bar">
-                                <div class="quantity-fill" style="width: {{ min(($product->stock->sum('quantity_on_hand') ?? 0) * 2, 100) }}%;"></div>
+                                <div class="quantity-fill" style="width: {{ min(($product->stocks->sum('quantity_on_hand') ?? 0) * 2, 100) }}%;"></div>
                             </div>
                         </div>
                     </td>
                     <td>
-                        <button class="edit-btn" onclick="editProduct({{ $product->id }}, '{{ $product->name }}', {{ $product->cost_price }}, {{ $product->selling_price }}, {{ $product->discount }}, {{ $product->stock->sum('quantity_on_hand') ?? 0 }})">
+                        <button class="edit-btn" onclick="editProduct({{ $product->id }}, '{{ $product->name }}', {{ $product->cost_price }}, {{ $product->selling_price }}, {{ $product->discount }}, {{ $product->stocks->sum('quantity_on_hand') ?? 0 }})">
                             <i class="ri-edit-line"></i> Edit
                         </button>
                     </td>
@@ -377,6 +484,20 @@
 
 @push('scripts')
 <script>
+function previewImage(event) {
+    const preview = document.getElementById('imagePreview');
+    const file = event.target.files[0];
+    
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            preview.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
+            preview.classList.add('has-image');
+        }
+        reader.readAsDataURL(file);
+    }
+}
+
 function editProduct(id, name, cost, price, discount, quantity) {
     document.querySelector('[name="name"]').value = name;
     document.querySelector('[name="cost_price"]').value = cost;
@@ -390,6 +511,12 @@ function editProduct(id, name, cost, price, discount, quantity) {
     document.getElementById('btnText').textContent = 'Update Product';
     document.querySelector('.form-header h2 i').className = 'ri-edit-line';
     document.querySelector('.form-header h2').innerHTML = '<i class="ri-edit-line" style="color: #667eea;"></i> Edit Product';
+    
+    // Reset image preview
+    const preview = document.getElementById('imagePreview');
+    preview.innerHTML = '<i class="ri-image-add-line"></i><span>Click to upload image</span>';
+    preview.classList.remove('has-image');
+    document.getElementById('productImage').value = '';
     
     // Scroll to form
     document.querySelector('.product-form-panel').scrollIntoView({ behavior: 'smooth', block: 'start' });

@@ -28,6 +28,17 @@ Route::middleware(['auth'])->group(function () {
     // Aura ERP Routes
     Route::get('/aura/dashboard', [DashboardController::class, 'auraDashboard'])->name('aura.dashboard');
     Route::get('/aura/products', [ProductController::class, 'auraProductDetails'])->name('aura.products');
+    
+    // Orders Routes
+    Route::get('/aura/orders', [DashboardController::class, 'auraOrders'])->name('aura.orders');
+    Route::post('/aura/orders', [DashboardController::class, 'auraStoreOrder'])->name('aura.orders.store');
+    Route::get('/aura/orders/complete', [DashboardController::class, 'auraCompleteOrders'])->name('aura.orders.complete');
+    Route::get('/aura/orders/pending', [DashboardController::class, 'auraPendingOrders'])->name('aura.orders.pending');
+    Route::post('/aura/orders/{id}/complete', [DashboardController::class, 'markOrderComplete'])->name('aura.orders.mark.complete');
+    
+    // Profit Analysis Route
+    Route::get('/aura/profit-analysis', [DashboardController::class, 'auraProfitAnalysis'])->name('aura.profit.analysis');
+    
     Route::post('/aura/products/store', [ProductController::class, 'auraStore'])->name('aura.products.store');
     Route::put('/aura/products/{id}/update', [ProductController::class, 'auraUpdate'])->name('aura.products.update');
     Route::get('/aura/customers/add', [CustomerController::class, 'auraAddCustomer'])->name('aura.customers.add');

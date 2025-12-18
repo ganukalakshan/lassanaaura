@@ -176,8 +176,9 @@
     @foreach($products as $product)
     <div class="product-card">
         <div class="product-image-wrapper">
-            @if($product['image'] && $product['image'] !== '/images/default-product.png')
-                <img src="{{ $product['image'] }}" alt="{{ $product['name'] }}" class="product-image">
+            @if(!empty($product['image']) && $product['image'] !== '/images/default-product.png')
+                <img src="{{ asset($product['image']) }}" alt="{{ $product['name'] }}" class="product-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                <i class="ri-box-3-line product-placeholder" style="display:none;"></i>
             @else
                 <i class="ri-box-3-line product-placeholder"></i>
             @endif

@@ -360,8 +360,26 @@
             </li>
             <li class="aura-menu-item">
                 <a href="{{ route('aura.orders') }}" class="aura-menu-link {{ request()->routeIs('aura.orders') ? 'active' : '' }}">
-                    <i class="ri-shopping-cart-2-line"></i>
-                    <span>Orders</span>
+                    <i class="ri-add-circle-line"></i>
+                    <span>Create Order</span>
+                </a>
+            </li>
+            <li class="aura-menu-item">
+                <a href="{{ route('aura.orders.complete') }}" class="aura-menu-link {{ request()->routeIs('aura.orders.complete') ? 'active' : '' }}">
+                    <i class="ri-check-double-line"></i>
+                    <span>Complete Orders</span>
+                </a>
+            </li>
+            <li class="aura-menu-item">
+                <a href="{{ route('aura.orders.pending') }}" class="aura-menu-link {{ request()->routeIs('aura.orders.pending') ? 'active' : '' }}">
+                    <i class="ri-time-line"></i>
+                    <span>Pending Orders</span>
+                </a>
+            </li>
+            <li class="aura-menu-item">
+                <a href="{{ route('aura.profit.analysis') }}" class="aura-menu-link {{ request()->routeIs('aura.profit.analysis') ? 'active' : '' }}">
+                    <i class="ri-line-chart-line"></i>
+                    <span>Profit & Loss</span>
                 </a>
             </li>
         </ul>
@@ -405,7 +423,7 @@
     </main>
     
     <!-- Logout Modal -->
-    <div class="logout-modal" id="logoutModal">
+    <div id="logoutModal" class="logout-modal">
         <div class="logout-modal-content">
             <div class="logout-modal-icon">
                 <i class="ri-logout-box-line"></i>

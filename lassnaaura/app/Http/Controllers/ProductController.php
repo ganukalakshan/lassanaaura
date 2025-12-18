@@ -12,7 +12,7 @@ class ProductController extends Controller
     // Aura ERP Product Details Page - Form + Table split view
     public function auraProductDetails()
     {
-        $products = Product::with('stock', 'category')->where('is_active', true)->get();
+        $products = Product::with('stocks', 'category')->where('is_active', true)->get();
         $categories = ProductCategory::where('is_active', true)->get();
         
         return view('aura.products', compact('products', 'categories'));
@@ -27,8 +27,17 @@ class ProductController extends Controller
             'selling_price' => 'required|numeric|min:0',
             'discount' => 'nullable|numeric|min:0|max:100',
             'quantity' => 'required|numeric|min:0',
-            'category_id' => 'nullable|exists:product_categories,id'
+            'category_id' => 'nullable|exists:product_categories,id',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
         ]);
+        
+        $imageUrl = null;
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $imageName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
+            $image->move(public_path('images/products'), $imageName);
+            $imageUrl = '/images/products/' . $imageName;
+        }
         
         $product = Product::create([
             'name' => $validated['name'],
@@ -37,6 +46,7 @@ class ProductController extends Controller
             'selling_price' => $validated['selling_price'],
             'discount' => $validated['discount'] ?? 0,
             'category_id' => $validated['category_id'] ?? null,
+            'image_url' => $imageUrl,
             'is_active' => true
         ]);
         
@@ -74,16 +84,32 @@ class ProductController extends Controller
             'selling_price' => 'required|numeric|min:0',
             'discount' => 'nullable|numeric|min:0|max:100',
             'quantity' => 'required|numeric|min:0',
-            'category_id' => 'nullable|exists:product_categories,id'
+            'category_id' => 'nullable|exists:product_categories,id',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
         ]);
         
-        $product->update([
+        $updateData = [
             'name' => $validated['name'],
             'cost_price' => $validated['cost_price'],
             'selling_price' => $validated['selling_price'],
             'discount' => $validated['discount'] ?? 0,
             'category_id' => $validated['category_id'] ?? null
-        ]);
+        ];
+        
+        // Handle image upload
+        if ($request->hasFile('image')) {
+            // Delete old image if exists
+            if ($product->image_url && file_exists(public_path($product->image_url))) {
+                unlink(public_path($product->image_url));
+            }
+            
+            $image = $request->file('image');
+            $imageName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
+            $image->move(public_path('images/products'), $imageName);
+            $updateData['image_url'] = '/images/products/' . $imageName;
+        }
+        
+        $product->update($updateData);
         
         // Update or create stock
         $warehouse = \App\Models\Warehouse::firstOrCreate(
@@ -103,7 +129,7 @@ class ProductController extends Controller
                 'product_id' => $product->id,
                 'warehouse_id' => $warehouse->id,
                 'quantity_on_hand' => $validated['quantity'],
-                'quantity_allocated' => 0
+                'reserved_quantity' => 0
             ]);
         }
         

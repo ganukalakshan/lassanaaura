@@ -405,8 +405,8 @@
                 <div class="product-card-mini" data-id="{{ $product->id }}" data-name="{{ $product->name }}" data-price="{{ $product->selling_price }}" onclick="toggleProduct(this)">
                     <div class="product-mini-icon">📦</div>
                     <div class="product-mini-name">{{ $product->name }}</div>
-                    <div class="product-mini-price">${{ number_format($product->selling_price, 2) }}</div>
-                    <div class="product-mini-stock">{{ $product->stock->sum('quantity_on_hand') ?? 0 }} in stock</div>
+                    <div class="product-mini-price">Rs {{ number_format($product->selling_price, 2) }}</div>
+                    <div class="product-mini-stock">{{ $product->stocks->sum('quantity_on_hand') ?? 0 }} in stock</div>
                 </div>
                 @endforeach
             </div>
@@ -436,7 +436,7 @@
             </div>
             <div class="summary-row total">
                 <span>Total:</span>
-                <span class="total-value" id="totalAmount">$0.00</span>
+                <span class="total-value" id="totalAmount">Rs 0.00</span>
             </div>
         </div>
         
@@ -514,7 +514,7 @@ function updateCart() {
             <div class="cart-item">
                 <div class="cart-item-info">
                     <div class="cart-item-name">${item.name}</div>
-                    <div class="cart-item-price">$${item.price.toFixed(2)} each</div>
+                    <div class="cart-item-price">Rs ${item.price.toFixed(2)} each</div>
                 </div>
                 <div class="cart-item-qty">
                     <button class="qty-btn" onclick="updateQuantity(${index}, -1)">−</button>
@@ -527,7 +527,7 @@ function updateCart() {
     
     const total = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     document.getElementById('itemCount').textContent = cartItems.length;
-    document.getElementById('totalAmount').textContent = '$' + total.toFixed(2);
+    document.getElementById('totalAmount').textContent = 'Rs ' + total.toFixed(2);
     
     updateCheckoutButton();
 }
