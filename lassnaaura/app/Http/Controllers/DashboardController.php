@@ -4,83 +4,78 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Customer;
-use App\Models\Invoice;
 use App\Models\Product;
 use App\Models\SalesOrder;
-use App\Models\Expense;
-use App\Models\ProductStock;
+use App\Models\SalesOrderItem;
 use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
-    public function index()
+    // Aura ERP Dashboard - Show all products with quantity
+    public function auraDashboard()
     {
-        // Get KPI data
-        $kpis = $this->getKPIs();
-        $recentInvoices = $this->getRecentInvoices();
-        $lowStockProducts = $this->getLowStockProducts();
-        $salesChartData = $this->getSalesChartData();
+        $products = Product::with('stock')->where('is_active', true)->get()->map(function($product) {
+            return [
+                'id' => $product->id,
+                'name' => $product->name,
+                'image' => $product->image_url ?? '/images/default-product.png',
+                'quantity' => $product->stock->sum('quantity_on_hand') ?? 0
+            ];
+        });
         
-        return view('dashboard', compact('kpis', 'recentInvoices', 'lowStockProducts', 'salesChartData'));
+        return view('aura.dashboard', compact('products'));
     }
     
-    private function getKPIs()
+    // Aura ERP Orders Page - POS style order creation
+    public function auraOrders()
     {
-        $currentMonth = now()->startOfMonth();
-        $currentYear = now()->startOfYear();
+        $products = Product::with('stock')->where('is_active', true)->get();
+        $customers = Customer::where('is_active', true)->get();
         
-        return [
-            'revenue_mtd' => Invoice::where('invoice_date', '>=', $currentMonth)
-                ->where('status', '!=', 'cancelled')
-                ->sum('total'),
-            'revenue_ytd' => Invoice::where('invoice_date', '>=', $currentYear)
-                ->where('status', '!=', 'cancelled')
-                ->sum('total'),
-            'receivables' => Invoice::whereIn('status', ['sent', 'partially_paid', 'overdue'])
-                ->sum('balance_due'),
-            'payables' => 0, // Will calculate from purchase orders
-            'stock_value' => DB::table('product_stock')
-                ->join('products', 'product_stock.product_id', '=', 'products.id')
-                ->selectRaw('SUM(product_stock.quantity_on_hand * products.cost_price) as total')
-                ->value('total') ?? 0,
-            'total_customers' => Customer::where('is_active', true)->count(),
-            'orders_today' => SalesOrder::whereDate('order_date', today())->count(),
-            'low_stock_count' => DB::table('products')
-                ->whereRaw('(SELECT COALESCE(SUM(quantity_on_hand), 0) FROM product_stock WHERE product_id = products.id) <= products.reorder_level')
-                ->count(),
-        ];
+        return view('aura.orders', compact('products', 'customers'));
     }
     
-    private function getRecentInvoices()
+    // Aura ERP Store Order
+    public function auraStoreOrder(Request $request)
     {
-        return Invoice::with('customer')
-            ->orderBy('invoice_date', 'desc')
-            ->limit(10)
-            ->get();
-    }
-    
-    private function getLowStockProducts()
-    {
-        return Product::select('products.*')
-            ->selectRaw('(SELECT SUM(quantity_on_hand) FROM product_stock WHERE product_id = products.id) as total_stock')
-            ->whereRaw('(SELECT SUM(quantity_on_hand) FROM product_stock WHERE product_id = products.id) <= products.reorder_level')
-            ->where('track_inventory', true)
-            ->limit(10)
-            ->get();
-    }
-    
-    private function getSalesChartData()
-    {
-        $last30Days = Invoice::where('invoice_date', '>=', now()->subDays(30))
-            ->where('status', '!=', 'cancelled')
-            ->selectRaw('DATE(invoice_date) as date, SUM(total) as total')
-            ->groupBy('date')
-            ->orderBy('date')
-            ->get();
+        $validated = $request->validate([
+            'customer_id' => 'required|exists:customers,id',
+            'products' => 'required|array',
+            'products.*.id' => 'required|exists:products,id',
+            'products.*.quantity' => 'required|numeric|min:1'
+        ]);
+        
+        DB::beginTransaction();
+        try {
+            $order = SalesOrder::create([
+                'customer_id' => $validated['customer_id'],
+                'order_date' => now(),
+                'status' => 'pending',
+                'user_id' => auth()->id()
+            ]);
             
-        return [
-            'labels' => $last30Days->pluck('date'),
-            'data' => $last30Days->pluck('total'),
-        ];
+            $total = 0;
+            foreach ($validated['products'] as $productData) {
+                $product = Product::find($productData['id']);
+                $subtotal = $product->selling_price * $productData['quantity'];
+                $total += $subtotal;
+                
+                SalesOrderItem::create([
+                    'sales_order_id' => $order->id,
+                    'product_id' => $product->id,
+                    'quantity' => $productData['quantity'],
+                    'unit_price' => $product->selling_price,
+                    'subtotal' => $subtotal
+                ]);
+            }
+            
+            $order->update(['total' => $total]);
+            
+            DB::commit();
+            return response()->json(['success' => true, 'order_id' => $order->id]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+        }
     }
 }

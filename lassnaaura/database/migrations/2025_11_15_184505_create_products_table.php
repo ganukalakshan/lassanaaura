@@ -18,17 +18,15 @@ return new class extends Migration
             $table->string('name');
             $table->text('description')->nullable();
             $table->foreignId('category_id')->nullable()->constrained('product_categories')->nullOnDelete();
-            $table->foreignId('tax_id')->nullable()->constrained('tax_rates')->nullOnDelete();
             $table->string('unit')->default('pcs'); // pcs, kg, ltr, etc.
             $table->decimal('cost_price', 15, 2)->default(0);
-            $table->decimal('sale_price', 15, 2)->default(0);
+            $table->decimal('selling_price', 15, 2)->default(0);
+            $table->decimal('discount', 5, 2)->default(0);
             $table->decimal('minimum_price', 15, 2)->nullable();
             $table->boolean('track_inventory')->default(true);
             $table->integer('reorder_level')->default(0);
             $table->integer('reorder_quantity')->default(0);
-            $table->boolean('has_variants')->default(false);
-            $table->json('attributes')->nullable();
-            $table->string('image')->nullable();
+            $table->string('image_url')->nullable();
             $table->boolean('is_active')->default(true);
             $table->timestamps();
             $table->softDeletes();

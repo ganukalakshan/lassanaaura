@@ -4,113 +4,109 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use App\Models\ProductCategory;
-use App\Models\TaxRate;
+use App\Models\ProductStock;
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
-    public function index(Request $request)
+    // Aura ERP Product Details Page - Form + Table split view
+    public function auraProductDetails()
     {
-        $query = Product::with(['category', 'taxRate']);
-        
-        if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where(function($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('sku', 'like', "%{$search}%")
-                  ->orWhere('barcode', 'like', "%{$search}%");
-            });
-        }
-        
-        if ($request->filled('category_id')) {
-            $query->where('category_id', $request->category_id);
-        }
-        
-        $products = $query->orderBy('name')->paginate(20);
+        $products = Product::with('stock', 'category')->where('is_active', true)->get();
         $categories = ProductCategory::where('is_active', true)->get();
         
-        return view('products.index', compact('products', 'categories'));
+        return view('aura.products', compact('products', 'categories'));
     }
-
-    public function create()
-    {
-        $categories = ProductCategory::where('is_active', true)->get();
-        $taxRates = TaxRate::where('is_active', true)->get();
-        return view('products.create', compact('categories', 'taxRates'));
-    }
-
-    public function store(Request $request)
+    
+    // Aura ERP Store Product
+    public function auraStore(Request $request)
     {
         $validated = $request->validate([
-            'sku' => 'required|string|unique:products,sku|max:64',
-            'barcode' => 'nullable|string|unique:products,barcode|max:64',
             'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'category_id' => 'nullable|exists:product_categories,id',
-            'tax_id' => 'nullable|exists:tax_rates,id',
-            'unit' => 'required|string|max:20',
             'cost_price' => 'required|numeric|min:0',
-            'sale_price' => 'required|numeric|min:0',
-            'minimum_price' => 'nullable|numeric|min:0',
-            'track_inventory' => 'boolean',
-            'reorder_level' => 'integer|min:0',
-            'reorder_quantity' => 'integer|min:0',
+            'selling_price' => 'required|numeric|min:0',
+            'discount' => 'nullable|numeric|min:0|max:100',
+            'quantity' => 'required|numeric|min:0',
+            'category_id' => 'nullable|exists:product_categories,id'
         ]);
         
-        $product = Product::create($validated);
+        $product = Product::create([
+            'name' => $validated['name'],
+            'sku' => 'SKU-' . strtoupper(uniqid()),
+            'cost_price' => $validated['cost_price'],
+            'selling_price' => $validated['selling_price'],
+            'discount' => $validated['discount'] ?? 0,
+            'category_id' => $validated['category_id'] ?? null,
+            'is_active' => true
+        ]);
         
-        // Redirect to products index and highlight the newly created product card/button
-        return redirect()->route('products.index', ['highlight' => $product->id])
-            ->with('success', 'Product created successfully!');
-    }
-
-    public function show(Product $product)
-    {
-        $product->load(['category', 'taxRate', 'productStock.warehouse', 'stockMovements']);
+        // Create initial stock if quantity > 0
+        if ($validated['quantity'] > 0) {
+            // Get or create default warehouse
+            $warehouse = \App\Models\Warehouse::firstOrCreate(
+                ['name' => 'Main Warehouse'],
+                [
+                    'code' => 'WH-001',
+                    'address' => 'Default Location',
+                    'is_active' => true
+                ]
+            );
+            
+            ProductStock::create([
+                'product_id' => $product->id,
+                'warehouse_id' => $warehouse->id,
+                'quantity_on_hand' => $validated['quantity'],
+                'quantity_allocated' => 0
+            ]);
+        }
         
-        $totalStock = $product->productStock->sum('quantity_on_hand');
-        $availableStock = $product->productStock->sum('available_quantity');
+        return redirect()->route('aura.products')->with('success', 'Product added successfully!');
+    }
+    
+    // Aura ERP Update Product
+    public function auraUpdate(Request $request, $id)
+    {
+        $product = Product::findOrFail($id);
         
-        return view('products.show', compact('product', 'totalStock', 'availableStock'));
-    }
-
-    public function edit(Product $product)
-    {
-        $categories = ProductCategory::where('is_active', true)->get();
-        $taxRates = TaxRate::where('is_active', true)->get();
-        return view('products.edit', compact('product', 'categories', 'taxRates'));
-    }
-
-    public function update(Request $request, Product $product)
-    {
         $validated = $request->validate([
-            'sku' => 'required|string|max:64|unique:products,sku,' . $product->id,
-            'barcode' => 'nullable|string|max:64|unique:products,barcode,' . $product->id,
             'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'category_id' => 'nullable|exists:product_categories,id',
-            'tax_id' => 'nullable|exists:tax_rates,id',
-            'unit' => 'required|string|max:20',
             'cost_price' => 'required|numeric|min:0',
-            'sale_price' => 'required|numeric|min:0',
-            'minimum_price' => 'nullable|numeric|min:0',
-            'track_inventory' => 'boolean',
-            'reorder_level' => 'integer|min:0',
-            'reorder_quantity' => 'integer|min:0',
-            'is_active' => 'boolean',
+            'selling_price' => 'required|numeric|min:0',
+            'discount' => 'nullable|numeric|min:0|max:100',
+            'quantity' => 'required|numeric|min:0',
+            'category_id' => 'nullable|exists:product_categories,id'
         ]);
         
-        $product->update($validated);
+        $product->update([
+            'name' => $validated['name'],
+            'cost_price' => $validated['cost_price'],
+            'selling_price' => $validated['selling_price'],
+            'discount' => $validated['discount'] ?? 0,
+            'category_id' => $validated['category_id'] ?? null
+        ]);
         
-        return redirect()->route('products.show', $product)
-            ->with('success', 'Product updated successfully!');
-    }
-
-    public function destroy(Product $product)
-    {
-        $product->delete();
+        // Update or create stock
+        $warehouse = \App\Models\Warehouse::firstOrCreate(
+            ['name' => 'Main Warehouse'],
+            [
+                'code' => 'WH-001',
+                'address' => 'Default Location',
+                'is_active' => true
+            ]
+        );
         
-        return redirect()->route('products.index')
-            ->with('success', 'Product deleted successfully!');
+        $stock = ProductStock::where('product_id', $product->id)->first();
+        if ($stock) {
+            $stock->update(['quantity_on_hand' => $validated['quantity']]);
+        } else {
+            ProductStock::create([
+                'product_id' => $product->id,
+                'warehouse_id' => $warehouse->id,
+                'quantity_on_hand' => $validated['quantity'],
+                'quantity_allocated' => 0
+            ]);
+        }
+        
+        return redirect()->route('aura.products')->with('success', 'Product updated successfully!');
     }
 }

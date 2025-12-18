@@ -13,10 +13,9 @@ return new class extends Migration
     {
         Schema::create('warehouses', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('branch_id')->constrained('branches')->onDelete('cascade');
             $table->string('name');
             $table->string('code')->unique();
-            $table->text('location')->nullable();
+            $table->text('address')->nullable();
             $table->string('manager_name')->nullable();
             $table->string('phone')->nullable();
             $table->boolean('is_active')->default(true);

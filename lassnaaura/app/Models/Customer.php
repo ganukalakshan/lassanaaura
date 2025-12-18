@@ -18,6 +18,7 @@ class Customer extends Model
         'email',
         'phone',
         'mobile',
+        'address',
         'tax_id',
         'credit_limit',
         'outstanding_balance',

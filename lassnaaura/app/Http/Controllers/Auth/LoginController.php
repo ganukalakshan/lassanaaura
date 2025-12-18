@@ -20,7 +20,7 @@ class LoginController extends Controller
                 return response()->json(['success' => true]);
             }
 
-            return redirect()->intended('/dashboard');
+            return redirect()->intended('/aura/dashboard');
         }
 
         if ($request->wantsJson() || $request->isJson()) {
@@ -28,5 +28,16 @@ class LoginController extends Controller
         }
 
         return back()->withErrors(['email' => 'Invalid credentials']);
+    }
+
+    /** Handle a logout request. */
+    public function logout(Request $request)
+    {
+        Auth::logout();
+        
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+        
+        return redirect('/login');
     }
 }

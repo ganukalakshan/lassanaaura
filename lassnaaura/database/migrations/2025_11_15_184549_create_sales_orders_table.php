@@ -13,10 +13,9 @@ return new class extends Migration
     {
         Schema::create('sales_orders', function (Blueprint $table) {
             $table->id();
-            $table->string('order_number')->unique();
-            $table->foreignId('sales_quote_id')->nullable()->constrained('sales_quotes')->nullOnDelete();
+            $table->string('order_number')->unique()->nullable();
             $table->foreignId('customer_id')->constrained('customers')->onDelete('cascade');
-            $table->foreignId('branch_id')->constrained('branches');
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->enum('status', ['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled'])->default('pending');
             $table->date('order_date');
             $table->date('expected_delivery_date')->nullable();
@@ -25,10 +24,9 @@ return new class extends Migration
             $table->decimal('tax_amount', 15, 2)->default(0);
             $table->decimal('shipping_amount', 15, 2)->default(0);
             $table->decimal('total', 15, 2)->default(0);
-            $table->string('currency')->default('LKR');
+            $table->string('currency')->default('USD');
             $table->text('shipping_address')->nullable();
             $table->text('notes')->nullable();
-            $table->foreignId('created_by')->constrained('users');
             $table->timestamps();
         });
     }

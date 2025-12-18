@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('email')->nullable();
             $table->string('phone')->nullable();
             $table->string('mobile')->nullable();
+            $table->text('address')->nullable();
             $table->string('tax_id')->nullable();
             $table->decimal('credit_limit', 15, 2)->default(0);
             $table->decimal('outstanding_balance', 15, 2)->default(0);
