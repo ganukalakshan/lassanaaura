@@ -5,9 +5,19 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\InstallerController;
+
+// Installer Routes
+Route::get('/install', [InstallerController::class, 'index'])->name('installer.index');
+Route::post('/install', [InstallerController::class, 'install'])->name('installer.install');
 
 // Public Routes
 Route::get('/', function () {
+    // Check if installed
+    if (!\Illuminate\Support\Facades\File::exists(storage_path('installed'))) {
+        return redirect()->route('installer.index');
+    }
+    
     if (auth()->check()) {
         return redirect('/aura/dashboard');
     }

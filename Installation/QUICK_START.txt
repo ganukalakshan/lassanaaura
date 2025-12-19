@@ -1,0 +1,43 @@
+╔════════════════════════════════════════════════╗
+║   LARAVEL APPLICATION INSTALLER - QUICK START  ║
+╚════════════════════════════════════════════════╝
+
+📋 WHAT YOU NEED:
+   ✓ Python 3.x installed
+   ✓ Composer installed
+   ✓ Node.js & NPM installed
+   ✓ MySQL/MariaDB running
+
+🚀 HOW TO INSTALL:
+
+   1. Double-click: installer.bat
+   
+   2. Enter your database details:
+      - Database Name
+      - Database Username
+      - Database Password
+   
+   3. Click "Start Installation"
+   
+   4. Wait for installation to complete
+   
+   5. Click "Launch System"
+
+✅ DONE! Your Laravel app is running at:
+   http://localhost:8000
+
+═══════════════════════════════════════════════
+
+📝 NEXT TIME:
+   - Just double-click installer.bat
+   - Click "Launch System"
+   - No reinstallation needed!
+
+═══════════════════════════════════════════════
+
+❓ PROBLEMS?
+   - Read README.md for troubleshooting
+   - Check if all requirements are installed
+   - Make sure MySQL is running
+
+═══════════════════════════════════════════════
